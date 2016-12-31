@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Audio2</title>
+<style>
+input{padding: 10px 20px; margin: 10px; border: 1px solid #ccc; background-color: #fff;}
+</style>
+</head>
+<body>
+<div class="control">
+	<input type="button" value="Play" onclick="play()">
+	<input type="button" value="Pause" onclick="pause()">
+	<input type="button" value="Play" onclick="playControl()">
+	<input type="button" value="静音" onclick="muted()">
+</div>
+<div class="control">
+	<input type="button" value="静音" onclick="muted()">
+	<input type="button" value="Volume+" onclick="volumeRaise()">
+	<input type="button" value="Volume-" onclick="volumeBate()">
+</div>
+<div class="control">
+	<input type="button" value="getDuration" onclick="getDuration()">
+	<input type="button" value="getCurrentTime" onclick="getCurrentTime()">
+	<input type="button" value="getPercent" onclick="getPercent()">
+</div>
+<div class="control">
+	<input type="text" id="time" value="0">
+	<input type="button" value="Go" onclick="go()">
+</div>
+<audio src="" id="audio_player2"></audio>
+
+<script src="https://cdn.staticfile.org/jquery/3.1.1/jquery.min.js"></script>
+<script src="Audio2.js"></script>
+<script>
+window.onload = function() {
+	console.log(AudioComponent)
+}
+
+var audio = AudioComponent.create({
+	id: 'audio_player',
+	src: './assets/fx.mp3',
+	autoplay: false,
+	loop: true,
+	loadedFn: function(t1, t2) {
+		console.log(t1)
+		console.log(t2)
+	}
+});
+// audio.setSrc('./assets/sg.mp3');
+
+function play() {
+	audio.play()
+}
+function pause() {
+	audio.pause()
+}
+function playControl() {
+	audio.playControl(function(){
+		event.target.value = "Pause"
+	}, function() {
+		event.target.value = "Play"
+	})
+}
+function muted() {
+	audio.muted(function() {
+		event.target.value = "开启静音"
+	}, function() {
+		event.target.value = "关闭静音"
+	});
+}
+function volumeRaise() {
+	audio.volumeRaise();
+}
+function volumeBate() {
+	audio.volumeBate();
+}
+function getDuration() {
+	console.log(audio.getDuration());
+}
+function getCurrentTime() {
+	console.log(audio.getCurrentTime());
+}
+function getPercent() {
+	console.log(audio.getPercent());
+}
+function go() {
+	var t = $('#time').val();
+	audio.setCurrentTime(t);
+}
+</script>
+</body>
+</html>
