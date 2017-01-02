@@ -25,6 +25,7 @@
         root.AudioComponent = AudioComponent;
     }
 }(this, function(root) {
+	// object copy
 	function $extend(primaryObject, secondaryObject) {
 		var o = {};
 		for (var prop in primaryObject) {
@@ -32,19 +33,40 @@
 		}
 		return o;
 	};
+	// 事件绑定
+	function addEvent(el, eType, handle, bool) {
+		if(el.addEventListener) {
+			el.addEventListener(eType, handle, bool);
+		} else if(el.attachEvent) {
+			el.attachEvent('on' + eType, handle);
+		} else {
+			el['on' + eType] = handle;
+		}
+	};
+	// 事件解绑
+	function removeEvent(el, eType, handle, bool) {
+		if(el.addEventListener) {
+			el.removeEventListener(eType, handle, bool);
+		} else if(el.attachEvent) {
+			el.detachEvent('on' + eType, handle);
+		} else {
+			el['on' + eType] = null;
+		}
+	};
+	// 默认参数
 	var settings = {
 		// audio 属性
-		id: '',
-		src: '',
-		autoplay: false,
-		loop: false,
-		controls: false,
-		preload: 'auto',
+		id: '', 						// audio id
+		src: '', 						// audio 源地址
+		autoplay: false, 				// 是否自动播放
+		loop: false, 					// 是否循环播放
+		controls: false, 				// 是否显示播放控件
+		preload: true, 				// 是否在页面加载时进行加载，并预备播放 (如果使用"autoplay"，则忽略该属性)
 		// 回调
-		loadstartFn: null,
-		loadedFn: null,
-		progressFn: null,
-		endFn: null
+		loadstartFn: null, 				// load start 回调
+		loadedFn: null, 				// laoded 回调
+		progressFn: null, 				// 播放中 回调
+		endFn: null 					// 播放结束 回调
 	};
 	function AudioComponent(options) {
 		this.opts = $extend(settings, options);
@@ -139,6 +161,7 @@
 				(unmuteFn && typeof unmuteFn === 'function') && unmuteFn();
 			}
 		},
+		// 音量调小
 		volumeBate: function() {
 			var audio = this.audio;
 			var volume = audio.volume - 0.1;
@@ -147,6 +170,7 @@
 			}
 			audio.volume = volume;
 		},
+		// 音量调大
 		volumeRaise: function() {
 			var audio = this.audio;
 			var volume = audio.volume + 0.1;
@@ -161,7 +185,7 @@
 				loadstartFn = this.opts.loadstartFn;
 			audio.addEventListener('loadstart', function() {
 				(loadstartFn && typeof loadstartFn === 'function') && loadstartFn();
-			}, false)
+			}, false);
 		},
 		// audio 加载
 		onLoaded: function(loadedFn) {
@@ -171,7 +195,7 @@
 			audio.addEventListener('loadeddata', function() {
 				that.duration = audio.seekable.end(0);
 				(loadedFn && typeof loadedFn === 'function') && loadedFn(that.duration, audio.currentTime, that.audio);
-			}, false)
+			}, false);
 		},
 		// 播放中
 		onPlaying: function() {
@@ -179,17 +203,16 @@
 			var audio = that.audio,
 				progressFn = that.opts.progressFn;
 			audio.addEventListener('timeupdate', function() {
-				(progressFn && typeof progressFn === 'function') && progressFn(audio.duration, audio.currentTime);
+				(progressFn && typeof progressFn === 'function') && progressFn(that.duration, audio.currentTime);
 			}, false);
 		},
 		// 播放结束
-		onEnd: function(callback) {
+		onEnd: function() {
 			var that = this;
 			var audio = that.audio,
 				endFn = that.opts.endFn;
 			audio.addEventListener('ended', function() {
 				(endFn && typeof endFn === 'function') && endFn();
-				(callback && typeof callback === 'function') && callback();
 			}, false);
 		},
 		// 支持播放类型
